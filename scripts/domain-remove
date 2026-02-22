@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Usage: domain-remove <domain-name>
+DOMAIN_NAME=$1
+[[ -z "$DOMAIN_NAME" ]] && echo 'Usage: domain-remove <domain-name>' && exit 1
+
+# Revoke the SSL certificate for the domain and delete it from certbot's storage
+certbot revoke --non-interactive --delete-after-revoke --cert-name $DOMAIN_NAME
+
+# Remove the nginx server block for the domain and reload nginx to apply the changes
+rm /etc/nginx/conf.d/$DOMAIN_NAME.conf
+nginx -s reload

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Usage: domain-add <domain-name> <admin-email>
+DOMAIN_NAME=$1
+ADMIN_EMAIL=$2
+[[ -z "$DOMAIN_NAME" || -z "$ADMIN_EMAIL" ]] && echo 'Usage: domain-add <domain-name> <admin-email>' && exit 1
+
+# Create nginx server block for the domain linked to certbot certificates
+cat > /etc/nginx/conf.d/$DOMAIN_NAME.conf <<EOF
+server {
+    server_name $DOMAIN_NAME;
+    location / {
+        return 404;
+    }
+    listen 443 ssl http2;
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN_NAME/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN_NAME/privkey.pem;
+}
+EOF
+
+#ssl_session_cache shared:le_nginx_SSL:10m;
+#ssl_session_timeout 1440m;
+#ssl_session_tickets off;
+
+# Obtain SSL certificate for the domain and reload nginx after successful deployment
+certbot certonly --standalone --non-interactive --agree-tos -m $ADMIN_EMAIL -d $DOMAIN_NAME --deploy-hook "nginx -s reload"

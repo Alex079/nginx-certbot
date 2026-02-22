@@ -1,0 +1,12 @@
+services:
+  nginx-certbot:
+    container_name: nginx-certbot.compose
+    image: nginx-certbot.standalone
+    build: .
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./volumes/letsencrypt:/etc/letsencrypt
+      - ./volumes/nginx-config:/etc/nginx/conf.d
