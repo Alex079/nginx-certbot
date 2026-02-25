@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Usage: domain-remove <domain-name>
-DOMAIN_NAME=$1
-[[ -z "$DOMAIN_NAME" ]] && echo 'Usage: domain-remove <domain-name>' && exit 1
+INPUT_NAME=$1
+[[ -z "$INPUT_NAME" ]] && echo 'Usage: domain-remove <cert-name>|<domain-name>' && exit 1
 
-# Revoke the SSL certificate for the domain and delete it from certbot's storage
-certbot revoke --non-interactive --delete-after-revoke --cert-name $DOMAIN_NAME
+CERT_NAMES=`find /etc/nginx/conf.d -name *$INPUT_NAME*.conf -exec basename {} .conf \;`
+[[ -z "$CERT_NAMES" ]] && echo "No matching certificate found for '$INPUT_NAME'" && exit 1
 
-# Remove the nginx server block for the domain and reload nginx to apply the changes
-rm /etc/nginx/conf.d/$DOMAIN_NAME.conf
+for CERT_NAME in $CERT_NAMES; do
+    certbot revoke --non-interactive --delete-after-revoke --cert-name $CERT_NAME
+    rm /etc/nginx/conf.d/$CERT_NAME.conf
+done
+
 nginx -s reload

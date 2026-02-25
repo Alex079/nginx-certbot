@@ -2,7 +2,7 @@
 
 This is an attempt to make nginx and certbot coexist in one container.
 
-The `nginx` is the primary application and an entrypoint. The `certbot` is managed by scripts and schedules itself with cron for certificates renewal.
+The `nginx` is the primary application and the entrypoint. The `certbot` is managed by scripts and schedules itself with cron for certificates renewal.
 
 ## Container management
 
@@ -20,8 +20,8 @@ docker compose down
 ## Domain management
 
 ```bash
-docker compose exec nginx-certbot domain-add <domain-name> <admin-email>
-docker compose exec nginx-certbot domain-remove <domain-name>
+docker compose exec nginx-certbot domain-add <admin-email> <domain-name> [<domain-name>]...
+docker compose exec nginx-certbot domain-remove <cert-name>|<domain-name>
 ```
 
 - a newly obtained certificate will be managed by `certbot`
